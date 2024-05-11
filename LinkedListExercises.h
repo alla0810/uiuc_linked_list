@@ -128,6 +128,73 @@ void LinkedList<T>::insertOrdered(const T& newData) {
   // to update all next, prev, head_, and tail_ pointers as needed on your
   // new node or on those existing nodes that are adjacent to the new node.
 
+  Node * newNode = new Node (newData);
+
+  if (!head_){
+    head_ = newNode;
+    tail_ = newNode;
+  }
+  else
+  {
+    Node * cur = head_;
+    Node * oldcur = cur;
+    
+    while(cur) {
+      if (cur == tail_)
+      {
+          if (cur->data < newData)    // insert newData to tail_
+          {
+            cur->next = newNode;
+            newNode->prev = cur;
+            newNode->next = nullptr;
+            tail_ = newNode;       
+            
+            break;
+          }
+          else
+          {
+            oldcur->next = newNode;
+            newNode->next = cur;
+            cur->prev = newNode;
+            newNode->prev = oldcur;
+            
+            break;
+          }
+      }
+      else
+      {
+        if (cur->data < newData)
+        {
+          oldcur = cur;
+          cur = cur->next; 
+        }
+        else      // insert between oldcur and cur
+        {
+          if (cur == head_)
+          {
+            newNode->next = head_;
+            head_->prev = newNode;
+            newNode->prev = nullptr;
+            
+            head_ = newNode;
+            
+            break;
+          }
+          else
+          {
+            oldcur->next = newNode;
+            newNode->next = cur;
+            cur->prev = newNode;
+            newNode->prev = oldcur;
+          
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  size_++;
 }
 
 /********************************************************************
@@ -245,6 +312,71 @@ LinkedList<T> LinkedList<T>::merge(const LinkedList<T>& other) const {
   //    very slow.
 
   // -----------------------------------------------------------
+  
+  if (!left.head_)      // left is empty
+  {
+    if (!right.head_)    // no nodes to merge
+    {
+      return merged;
+    }
+    else    // right only, right is empty
+    {
+      return right;
+    }
+  }
+  
+  if (!right.head_)    // right is empty
+  {
+    if (!left.head_)   // both empty, no nodes to merge
+    {
+      return merged;
+    }
+    else              // left only
+    {
+      merged = left;
+      
+      return merged;
+    }
+  }
+  
+  Node * cur_left = left.head_;
+  Node * cur_right = right.head_;
+
+  // std::cout << "(Left) Head: " << cur_left << std::endl;
+  // std::cout << "(Right) Head: " << cur_right << std::endl;  
+
+  while ((cur_left != nullptr) && (cur_right != nullptr))
+  {
+  // std::cout << "(Left) Head: " << cur_left->data << std::endl;
+  // std::cout << "(Right) Head: " << cur_right->data << std::endl;  
+    
+    if (cur_left->data <= cur_right->data)
+    {
+      merged.pushBack(cur_left->data);
+      
+      cur_left = cur_left->next;
+    }
+    else
+    {
+      merged.pushBack(cur_right->data);    
+      
+      cur_right = cur_right->next;
+    }
+  }
+
+ while (cur_left != nullptr)
+ {
+    merged.pushBack(cur_left->data);
+      
+    cur_left = cur_left->next;
+ }
+
+ while (cur_right != nullptr)
+ {
+    merged.pushBack(cur_right->data);
+      
+    cur_right = cur_right->next;
+ }
 
   // We return the merged list by value here. It may be copied out of the
   // function, but usually the compiler will optimize this to automatically
